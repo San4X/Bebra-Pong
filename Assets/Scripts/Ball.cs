@@ -7,6 +7,7 @@ using Random = System.Random;
 public class Ball : MonoBehaviour
 {
     public float speed = 2f;
+    public float reflectedAngle = 30;
     
     private Rigidbody2D rb;
     private Random _rnd = new Random();
@@ -24,7 +25,7 @@ public class Ball : MonoBehaviour
         // _ranX = _rnd.Next(-5, 5);
         // _ranY = _rnd.Next(-5, 5);
         // _ranDir = new Vector2(_ranX, _ranY);
-        _tempDir = new Vector2(1, 1);
+        _tempDir = new Vector2(1, -1);
         rb.velocity = _tempDir * speed;
         rb.gravityScale = 0f;
         _inDirection = rb.velocity;
@@ -42,20 +43,18 @@ public class Ball : MonoBehaviour
     {
         Vector2 inNormal = collision.contacts[0].normal;
         Vector2 reflectedVelocityDir = Vector2.Reflect(_inDirection , inNormal);
-
+        _inDirection = reflectedVelocityDir;
         
         if (collision.gameObject.CompareTag("Player"))
         {
-            _inDirection = reflectedVelocityDir;
-
-            AdjustTrajectory(45, collision);
+            AdjustTrajectory(reflectedAngle, collision);
         }
         
         Debug.Log($"Old direction = {_inDirection} to new direction {reflectedVelocityDir}");
         //rb.velocity = newVelocityDir;
         
         rb.velocity = _inDirection;
-        _inDirection = rb.velocity;
+        //_inDirection = rb.velocity;
     }
     
     void AdjustTrajectory(float angle, Collision2D collision)
@@ -63,16 +62,17 @@ public class Ball : MonoBehaviour
         ContactPoint2D contact = collision.contacts[0]; // Get the first contact point
         float top = collision.collider.bounds.max.y;
         float bot = collision.collider.bounds.min.y;
-        float angleMultiplier;
+        float angleMultiplier = 0;
 
         if (_inDirection.y < 0)
         {
             angleMultiplier = Mathf.InverseLerp( top, bot, contact.point.y);
+            if(_inDirection.x < 0) angle-= angle*2;
         }
         else
         {
             angleMultiplier = Mathf.InverseLerp( bot, top, contact.point.y);
-            angle-= angle*2;
+            if(_inDirection.x > 0) angle-= angle*2;
         }
         
         // Convert the angle from degrees to radians
