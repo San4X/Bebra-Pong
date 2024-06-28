@@ -11,24 +11,18 @@ public class Ball : MonoBehaviour
     
     private Rigidbody2D rb;
     private Random _rnd = new Random();
-    private int _ranX;
-    private int _ranY;
-    private Vector2 _ranDir;
-    private Vector2 _tempDir;
+    
+    
+    
     private Vector2 _inDirection = new Vector2(0, 0);
     
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        //rb.gravityScale = 0f;
-        // _ranX = _rnd.Next(-5, 5);
-        // _ranY = _rnd.Next(-5, 5);
-        // _ranDir = new Vector2(_ranX, _ranY);
-        _tempDir = new Vector2(1, -1);
-        rb.velocity = _tempDir * speed;
+        BallStarter();
         rb.gravityScale = 0f;
-        _inDirection = rb.velocity;
+        
     }
     
     // Update is called once per frame
@@ -39,7 +33,7 @@ public class Ball : MonoBehaviour
         Debug.DrawRay(rb.position, rb.velocity, Color.red);
     }
     
-    void OnCollisionEnter2D(Collision2D collision) //_inDirection initialized at the beginning because after ball collides with another object it instantly changes its trajectory and only after Vector2.Reflect compilates so it need unchangeble variable of Vector2.
+    void OnCollisionEnter2D(Collision2D collision) //_inDirection initialized at the beginning (BallStarter()) because after ball collides with another object it instantly changes its trajectory and only after Vector2.Reflect compilates so it need unchangeble variable of Vector2.
     {
         Vector2 inNormal = collision.contacts[0].normal;
         Vector2 reflectedVelocityDir = Vector2.Reflect(_inDirection , inNormal);
@@ -93,9 +87,23 @@ public class Ball : MonoBehaviour
         // Normalize the adjusted velocity vector to maintain its direction
         _inDirection.Normalize();
     }
+
+    public void BallStarter()
+    {
+        int x, y;
+        Vector2 direction;
+        
+        y = _rnd.Next(-5, 5);
+        int leftOrRight = _rnd.Next(0,2);
+        if (leftOrRight == 0) x = -9;
+        else x = 9;
+        
+        direction = new Vector2(x, y).normalized;
+        rb.velocity = direction * speed;
+        _inDirection = rb.velocity;
+    }
 }
-
-
 // Визначаємо координати точки дотику
 // конвертуємо її в число від 0 до 1 де 0 це сторона з якої прилітає м'яч
 // чим більше число тим менший кут відбиття і навпаки
+
