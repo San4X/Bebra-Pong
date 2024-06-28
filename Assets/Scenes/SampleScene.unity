@@ -589,6 +589,7 @@ GameObject:
   - component: {fileID: 599163007}
   - component: {fileID: 599163010}
   - component: {fileID: 599163009}
+  - component: {fileID: 599163011}
   m_Layer: 0
   m_Name: Player Right
   m_TagString: Player
@@ -735,6 +736,23 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &599163011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 599163006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c64ef1bf4377df74a846441171f69e6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
+  ball: {fileID: 1659380084}
+  reactionTime: 0.5
+  upperBoundary: 4.19
+  lowerBoundary: -4.19
 --- !u!1 &651595057
 GameObject:
   m_ObjectHideFlags: 0
