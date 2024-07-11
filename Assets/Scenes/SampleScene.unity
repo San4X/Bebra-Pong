@@ -1083,9 +1083,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 381846d37299e044489a1ce7050fe3b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 898413695}
-  top: {fileID: 1107253980}
-  bottom: {fileID: 565737030}
+  upperFrame: {fileID: 1107253980}
+  lowerFrame: {fileID: 565737030}
   speed: 8
 --- !u!61 &898413700
 BoxCollider2D:
