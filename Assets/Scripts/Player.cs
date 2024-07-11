@@ -29,8 +29,8 @@ public class Player : MonoBehaviour
             playerHeight = size.y;
         }
 
-        maxY = top.transform.position.y + playerHeight / -2;
-        minY = bottom.transform.position.y + playerHeight / 2;
+        maxY = top.transform.position.y + playerHeight / -2f;
+        minY = bottom.transform.position.y + playerHeight / 2f;
         currentX = player.transform.position.x;
     }
     

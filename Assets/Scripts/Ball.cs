@@ -14,7 +14,7 @@ public class Ball : MonoBehaviour
     
     
     
-    private Vector2 _inDirection = new Vector2(0, 0);
+    private Vector2 _inDirection;
     
     // Start is called before the first frame update
     void Start()
@@ -31,6 +31,8 @@ public class Ball : MonoBehaviour
         rb.velocity = rb.velocity.normalized * speed;
         Debug.Log("Velocity: " + rb.velocity);
         Debug.DrawRay(rb.position, rb.velocity, Color.red);
+
+        if (rb.velocity == new Vector2(0, 0)) rb.velocity = _inDirection;
     }
     
     void OnCollisionEnter2D(Collision2D collision) //_inDirection initialized at the beginning (BallStarter()) because after ball collides with another object it instantly changes its trajectory and only after Vector2.Reflect compilates so it need unchangeble variable of Vector2.
@@ -41,17 +43,15 @@ public class Ball : MonoBehaviour
         
         if (collision.gameObject.CompareTag("Player"))
         {
-            AdjustTrajectory(reflectedAngle, collision);
+            AdjustAngle(reflectedAngle, collision);
         }
         
         Debug.Log($"Old direction = {_inDirection} to new direction {reflectedVelocityDir}");
-        //rb.velocity = newVelocityDir;
         
         rb.velocity = _inDirection;
-        //_inDirection = rb.velocity;
     }
     
-    void AdjustTrajectory(float angle, Collision2D collision)
+    void AdjustAngle(float angle, Collision2D collision)
     {
         ContactPoint2D contact = collision.contacts[0]; // Get the first contact point
         float top = collision.collider.bounds.max.y;
@@ -87,6 +87,9 @@ public class Ball : MonoBehaviour
         // Normalize the adjusted velocity vector to maintain its direction
         _inDirection.Normalize();
     }
+    // Визначаємо координати точки дотику
+    // конвертуємо її в число від 0 до 1 де 0 це сторона з якої прилітає м'яч
+    // чим більше число тим менший кут відбиття і навпаки
 
     public void BallStarter()
     {
@@ -103,7 +106,5 @@ public class Ball : MonoBehaviour
         _inDirection = rb.velocity;
     }
 }
-// Визначаємо координати точки дотику
-// конвертуємо її в число від 0 до 1 де 0 це сторона з якої прилітає м'яч
-// чим більше число тим менший кут відбиття і навпаки
+
 
