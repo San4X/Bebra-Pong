@@ -5,17 +5,25 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UI;
 
 public class Scoring : MonoBehaviour
 {
-    [SerializeField]
-    private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI scoreText, winnerText;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private int gameOverScore;
+    [SerializeField] private Button restartButton;
     private int _leftScore, _rightScore;
     private Ball _movementScript;
+    private int _leftScoreCount, _rightScoreCount;
 
     private void Start()
     {
         _movementScript = GetComponent<Ball>();
+        
+        gameOverPanel.SetActive(false);
+        winnerText.enabled = false;
+        restartButton.enabled = false;
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -35,10 +43,47 @@ public class Scoring : MonoBehaviour
             _movementScript.BallStarter();
         }
         //_movementScript.enabled = true;
-        
-        
-        if (collision.gameObject.CompareTag("L_Goal")) _rightScore++;
-        else _leftScore++;
+
+
+        if (collision.gameObject.CompareTag("L_Goal"))
+        {
+            _rightScore++; 
+            _rightScoreCount++;
+        }
+        else
+        {
+            _leftScore++;
+            _leftScoreCount++;
+        }
         scoreText.text = $"{_leftScore}:{_rightScore}";
+        
+        if(_leftScoreCount >= gameOverScore || _rightScoreCount >= gameOverScore) GameOver();
+    }
+
+    void GameOver()
+    {
+        gameOverPanel.SetActive(true);
+        winnerText.enabled = true;
+        restartButton.enabled = true;
+
+        if (_leftScore > _rightScore) winnerText.text = "winner \n --->";
+        else if (_rightScore > _leftScore) winnerText.text = "winner \n <---";
+        else winnerText.text = "it's a draw!";
+
+        Time.timeScale = 0f;
+    }
+
+    public void Restart()
+    {
+        gameOverPanel.SetActive(false);
+        winnerText.enabled = false;
+        restartButton.enabled = false;
+
+        _leftScore = 0;
+        _rightScore = 0;
+        
+        Time.timeScale = 1f;
+        
+        _movementScript.BallStarter();
     }
 }

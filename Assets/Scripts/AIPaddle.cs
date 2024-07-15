@@ -10,30 +10,38 @@ public class AIPaddle : MonoBehaviour
     public float speed = 5.0f;
     public Ball ball;
     public GameObject aiActivationBorder;
-    public float upperBoundary = 4.19f;
-    public float lowerBoundary = -4.19f;
     public GameObject upperFrame, lowerFrame;
     
     private Vector3 _initialPosition, _targetPosition;
-    private float _upperBoundary, _lowerBoundary;
+    private float _upperBorder, _lowerBorder;
+
+    private bool _isRight;
 
     private void Start()
     {
-        _upperBoundary = upperFrame.transform.position.y - upperFrame.GetComponent<BoxCollider2D>().size.y / 3f - GetComponent<BoxCollider2D>().size.y / 2f;
-        _lowerBoundary = lowerFrame.transform.position.y + lowerFrame.GetComponent<BoxCollider2D>().size.y / 3f + GetComponent<BoxCollider2D>().size.y / 2f;
+        _upperBorder = upperFrame.transform.position.y - upperFrame.GetComponent<BoxCollider2D>().bounds.extents.y - GetComponent<BoxCollider2D>().bounds.extents.y;
+        _lowerBorder = lowerFrame.transform.position.y + lowerFrame.GetComponent<BoxCollider2D>().bounds.extents.y + GetComponent<BoxCollider2D>().bounds.extents.y;
         
         _initialPosition = transform.position;
         _targetPosition = _initialPosition;
+
+         _isRight = transform.position.x > 0;
     }
 
     private void Update()
     {
-        Vector2 ballDir = ball.GetComponent<Rigidbody2D>().velocity;
-        if (ball.transform.position.x >= aiActivationBorder.transform.position.x && ballDir.x > 0) //if further than border and moving to right
+        if (_isRight && ball.transform.position.x >= aiActivationBorder.transform.position.x && Ball.BallVelocity.x > 0) // If paddle on the right, further than activation border and moving to right
         {
-            // predict the intersection of the ball with a vertical line passing through the paddle
-            float timeToReachPaddle = (transform.position.x - ball.transform.position.x) / ballDir.x;
-            float predictedY = ball.transform.position.y + ballDir.y * timeToReachPaddle;
+            // Predict the intersection of the ball with a vertical line passing through the paddle
+            float timeToReachPaddle = (transform.position.x - ball.transform.position.x) / Ball.BallVelocity.x;
+            float predictedY = ball.transform.position.y + Ball.BallVelocity.y * timeToReachPaddle;
+
+            _targetPosition = new Vector3(transform.position.x, predictedY, transform.position.z);
+        }
+        else if (!_isRight && ball.transform.position.x <= aiActivationBorder.transform.position.x && Ball.BallVelocity.x < 0) // If paddle on the left, further than activation border and moving to left
+        {
+            float timeToReachPaddle = (transform.position.x - ball.transform.position.x) / Ball.BallVelocity.x;
+            float predictedY = ball.transform.position.y + Ball.BallVelocity.y * timeToReachPaddle;
 
             _targetPosition = new Vector3(transform.position.x, predictedY, transform.position.z);
         }
@@ -43,7 +51,7 @@ public class AIPaddle : MonoBehaviour
         }
         
         float step = speed * Time.deltaTime;
-        transform.position = Vector3.MoveTowards(transform.position, new Vector3(_targetPosition.x, Mathf.Clamp(_targetPosition.y, _lowerBoundary, _upperBoundary), _targetPosition.z), step);
+        transform.position = Vector3.MoveTowards(transform.position, new Vector3(_targetPosition.x, Mathf.Clamp(_targetPosition.y, _lowerBorder, _upperBorder), _targetPosition.z), step);
         
     }
 }

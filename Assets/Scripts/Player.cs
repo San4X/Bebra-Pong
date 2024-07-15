@@ -16,12 +16,8 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        float playerSizeY = GetComponent<BoxCollider2D>().size.y;
-        float upperFrameSizeY = upperFrame.GetComponent<BoxCollider2D>().size.y;
-        float lowerFrameSizeY = lowerFrame.GetComponent<BoxCollider2D>().size.y;
-        
-        _upperBorder = upperFrame.transform.position.y - upperFrameSizeY / 2f - playerSizeY / 3f;
-        _lowerBorder = lowerFrame.transform.position.y + lowerFrameSizeY / 2f + playerSizeY / 3f;
+        _upperBorder = upperFrame.transform.position.y - upperFrame.GetComponent<BoxCollider2D>().bounds.extents.y - GetComponent<BoxCollider2D>().bounds.extents.y;
+        _lowerBorder = lowerFrame.transform.position.y + lowerFrame.GetComponent<BoxCollider2D>().bounds.extents.y + GetComponent<BoxCollider2D>().bounds.extents.y;
     }
     
     // Update is called once per frame
