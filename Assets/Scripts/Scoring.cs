@@ -65,10 +65,21 @@ public class Scoring : MonoBehaviour
         gameOverPanel.SetActive(true);
         winnerText.enabled = true;
         restartButton.enabled = true;
+        
+        Vector3 rotation = gameOverPanel.transform.rotation.eulerAngles;
 
-        if (_leftScore > _rightScore) winnerText.text = "winner \n --->";
-        else if (_rightScore > _leftScore) winnerText.text = "winner \n <---";
-        else winnerText.text = "it's a draw!";
+        if (_leftScore > _rightScore)
+        {
+            winnerText.text = "winner \n --->";
+            rotation.y = 0f;
+        }
+        else if (_rightScore > _leftScore)
+        {
+            winnerText.text = "winner \n <---";
+            rotation.y = 180f;
+        }
+        
+        gameOverPanel.transform.rotation = Quaternion.Euler(rotation);
 
         Time.timeScale = 0f;
     }
