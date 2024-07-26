@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Scripting;
 using UnityEngine.Serialization;
 using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
@@ -10,9 +11,9 @@ using UnityEngine.UI;
 public class Scoring : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI scoreText, winnerText;
-    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject gameOverTint;
     [SerializeField] private int gameOverScore;
-    [SerializeField] private Button restartButton;
+    [SerializeField] private GameObject restartButton, homeButton;
     private int _leftScore, _rightScore;
     private Ball _movementScript;
     private int _leftScoreCount, _rightScoreCount;
@@ -21,9 +22,10 @@ public class Scoring : MonoBehaviour
     {
         _movementScript = GetComponent<Ball>();
         
-        gameOverPanel.SetActive(false);
+        gameOverTint.SetActive(false);
         winnerText.enabled = false;
-        restartButton.enabled = false;
+        restartButton.SetActive(false);
+        homeButton.SetActive(false);
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -36,62 +38,58 @@ public class Scoring : MonoBehaviour
 
     void Score(Collision2D collision)
     {
-        if (_movementScript != null)
-        {
-            //_movementScript.enabled = false;
-            transform.position = new Vector3(0, 0, transform.position.z);
-            _movementScript.BallStarter();
-        }
-        //_movementScript.enabled = true;
-
-
+        if (_movementScript != null) _movementScript.BallStarter();
+        
         if (collision.gameObject.CompareTag("L_Goal"))
         {
             _rightScore++; 
-            _rightScoreCount++;
+            //_rightScoreCount++;
         }
         else
         {
             _leftScore++;
-            _leftScoreCount++;
+            //_leftScoreCount++;
         }
         scoreText.text = $"{_leftScore}:{_rightScore}";
         
-        if(_leftScoreCount >= gameOverScore || _rightScoreCount >= gameOverScore) GameOver();
+        if(_leftScore >= gameOverScore || _rightScore >= gameOverScore) GameOver();
     }
 
     void GameOver()
     {
-        gameOverPanel.SetActive(true);
+        gameOverTint.SetActive(true);
         winnerText.enabled = true;
-        restartButton.enabled = true;
+        restartButton.SetActive(true);
+        homeButton.SetActive(true);
         
-        Vector3 rotation = gameOverPanel.transform.rotation.eulerAngles;
+        Vector3 rotation = gameOverTint.transform.rotation.eulerAngles;
 
         if (_leftScore > _rightScore)
         {
-            winnerText.text = "winner \n --->";
-            rotation.y = 0f;
+            winnerText.text = "winner \n<=====";
+            rotation.y = 180f;
         }
         else if (_rightScore > _leftScore)
         {
-            winnerText.text = "winner \n <---";
-            rotation.y = 180f;
+            winnerText.text = "winner \n=====>";
+            rotation.y = 0f;
         }
         
-        gameOverPanel.transform.rotation = Quaternion.Euler(rotation);
+        gameOverTint.transform.rotation = Quaternion.Euler(rotation);
 
         Time.timeScale = 0f;
     }
 
     public void Restart()
     {
-        gameOverPanel.SetActive(false);
+        gameOverTint.SetActive(false);
         winnerText.enabled = false;
-        restartButton.enabled = false;
+        restartButton.SetActive(false);
+        homeButton.SetActive(false);
 
         _leftScore = 0;
         _rightScore = 0;
+        scoreText.text = $"{_leftScore}:{_rightScore}";
         
         Time.timeScale = 1f;
         

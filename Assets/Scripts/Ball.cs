@@ -32,7 +32,7 @@ public class Ball : MonoBehaviour
         BallVelocity = _rb.velocity;
         _rb.velocity = BallVelocity.normalized * speed;
         
-        Debug.Log("Velocity: " + BallVelocity);
+        //Debug.Log("Velocity: " + BallVelocity);
         Debug.DrawRay(_rb.position, BallVelocity, Color.red);
 
         if (BallVelocity == new Vector2(0, 0)) _rb.velocity = _inDirection;
@@ -53,7 +53,7 @@ public class Ball : MonoBehaviour
             AdjustAngle(reflectionAngle, collision);
         }
         
-        Debug.Log($"Old direction = {_inDirection} to new direction {reflectedVelocityDir}");
+        //Debug.Log($"Old direction = {_inDirection} to new direction {reflectedVelocityDir}");
     }
     
     void AdjustAngle(float reflectionAngle, Collision2D collision)
@@ -100,6 +100,8 @@ public class Ball : MonoBehaviour
 
     public void BallStarter()
     {
+        transform.position = new Vector3(0, 0, transform.position.z);
+        
         int x;
         int y = _rnd.Next(-5, 5);
         int leftOrRight = _rnd.Next(0,2);

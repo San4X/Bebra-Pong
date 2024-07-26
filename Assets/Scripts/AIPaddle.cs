@@ -11,6 +11,7 @@ public class AIPaddle : MonoBehaviour
     public Ball ball;
     public GameObject aiActivationBorder;
     public GameObject upperFrame, lowerFrame;
+    [SerializeField] private Material playerMaterial;
     
     private Vector3 _initialPosition, _targetPosition;
     private float _upperBorder, _lowerBorder;
@@ -25,7 +26,15 @@ public class AIPaddle : MonoBehaviour
         _initialPosition = transform.position;
         _targetPosition = _initialPosition;
 
-         _isRight = transform.position.x > 0;
+        _isRight = transform.position.x > 0;
+
+        SpriteRenderer render = GetComponent<SpriteRenderer>();
+        
+        render.color = new Color(
+            PlayerPrefs.GetFloat("PlayerColorR"), 
+            PlayerPrefs.GetFloat("PlayerColorG"), 
+            PlayerPrefs.GetFloat("PlayerColorB"), 
+            PlayerPrefs.GetFloat("PlayerColorA"));
     }
 
     private void Update()
