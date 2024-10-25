@@ -1,21 +1,32 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
-    [SerializeField] private GameObject menu;
+    public static MenuManager Instance { get; private set; }
     
-    // Start is called before the first frame update
+    [SerializeField] private GameObject colorPickerUI;
+    [SerializeField] private GameObject modeSelectionUI;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     void Start()
     {
-        menu.SetActive(false);
+        colorPickerUI.SetActive(false);
+        modeSelectionUI.SetActive(false);
         Time.timeScale = 1f;
     }
 
     public void LoadGameScene()
     {
-        SceneManager.LoadScene("Main");
+        if(NetworkManager.Singleton.IsClient) NetworkManager.Singleton.SceneManager.LoadScene("Game", LoadSceneMode.Single);
+        else SceneManager.LoadScene("Game");
     }
 }

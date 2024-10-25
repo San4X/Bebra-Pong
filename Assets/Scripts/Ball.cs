@@ -1,29 +1,41 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
-using Random = System.Random;
 
-public class Ball : MonoBehaviour
+public class Ball : NetworkBehaviour
 {
-    public float speed = 2f;
-    public float reflectedAngle = 30;
+    public static Ball Instance { get; private set; }
+
+    public event EventHandler<CollisionEventArgs> OnCollidedWithGoal;
+
+    public class CollisionEventArgs : EventArgs
+    {
+        public Collision2D collision;
+    }
+    
+    [SerializeField] private float speed = 2f;
     
     private Rigidbody2D _rb;
     private Vector2 _inDirection;
-    private readonly Random _rnd = new Random();
 
-    public static Vector2 BallVelocity;
-
-    private Vector2 _tempVector = new Vector2(1, -1);
+    public Vector2 BallVelocity;
     
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        BallStarter();
         _rb.gravityScale = 0f;
-        
+
+        if(Scoring.Instance != null) Scoring.Instance.StartDaBall += StartDaBall_Event;
+        else BallStarter(); // If it is menu
     }
     
     // Update is called once per frame
@@ -35,7 +47,7 @@ public class Ball : MonoBehaviour
         //Debug.Log("Velocity: " + BallVelocity);
         Debug.DrawRay(_rb.position, BallVelocity, Color.red);
 
-        if (BallVelocity == new Vector2(0, 0)) _rb.velocity = _inDirection;
+        if (BallVelocity == new Vector2(0, 0) && transform.position != new Vector3(0, 0, 0)) BallStarter();
     }
     
     void OnCollisionEnter2D(Collision2D collision) //_inDirection initialized at the beginning (BallStarter()) because after ball collides with another object it instantly changes its trajectory and only after Vector2.Reflect compilates so it need unchangeble variable of Vector2.
@@ -51,6 +63,10 @@ public class Ball : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             AdjustAngle(reflectionAngle, collision);
+        }
+        else if (collision.gameObject.CompareTag("L_Goal") || collision.gameObject.CompareTag("R_Goal"))
+        {
+            OnCollidedWithGoal?.Invoke(this, new CollisionEventArgs{collision = collision});
         }
         
         //Debug.Log($"Old direction = {_inDirection} to new direction {reflectedVelocityDir}");
@@ -98,13 +114,17 @@ public class Ball : MonoBehaviour
     // конвертуємо її в число від 0 до 1 де 0 це сторона з якої прилітає м'яч
     // чим більше число тим менший кут відбиття і навпаки
 
-    public void BallStarter()
+    private void StartDaBall_Event(object sender, EventArgs e) {
+        BallStarter();
+    }
+    
+    private void BallStarter()
     {
         transform.position = new Vector3(0, 0, transform.position.z);
         
         int x;
-        int y = _rnd.Next(-5, 5);
-        int leftOrRight = _rnd.Next(0,2);
+        int y = UnityEngine.Random.Range(-5, 5);
+        int leftOrRight = UnityEngine.Random.Range(0,2);
         
         if (leftOrRight == 0) x = -9;
         else x = 9;

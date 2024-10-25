@@ -10,44 +10,50 @@ using UnityEngine.UI;
 
 public class Scoring : MonoBehaviour
 {
+    public static Scoring Instance { get; private set; }
+    public event EventHandler StartDaBall;
+    
     [SerializeField] private TextMeshProUGUI scoreText, winnerText;
-    [SerializeField] private GameObject gameOverTint;
     [SerializeField] private int gameOverScore;
-    [SerializeField] private GameObject restartButton, homeButton;
+    [SerializeField] private GameObject gameOverTint;
+    
     private int _leftScore, _rightScore;
-    private Ball _movementScript;
+    private GameStateManager _gameStateManager;
     private int _leftScoreCount, _rightScoreCount;
+
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
-        _movementScript = GetComponent<Ball>();
+        Ball.Instance.OnCollidedWithGoal += OnBallCollidedWithGoal_Event;
+        _gameStateManager = GetComponent<GameStateManager>();
         
         gameOverTint.SetActive(false);
         winnerText.enabled = false;
-        restartButton.SetActive(false);
-        homeButton.SetActive(false);
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    private void OnBallCollidedWithGoal_Event(object sender, Ball.CollisionEventArgs e)
     {
-        if (collision.gameObject.CompareTag("L_Goal") || collision.gameObject.CompareTag("R_Goal"))
-        {
-            Score(collision);
-        }
+        Score(e.collision);
     }
-
-    void Score(Collision2D collision)
+    
+    private void Score(Collision2D collision)
     {
-        if (_movementScript != null) _movementScript.BallStarter();
         
         if (collision.gameObject.CompareTag("L_Goal"))
         {
             _rightScore++; 
+            StartDaBall?.Invoke(this, EventArgs.Empty);
             //_rightScoreCount++;
         }
         else
         {
             _leftScore++;
+            StartDaBall?.Invoke(this, EventArgs.Empty);
             //_leftScoreCount++;
         }
         scoreText.text = $"{_leftScore}:{_rightScore}";
@@ -55,12 +61,10 @@ public class Scoring : MonoBehaviour
         if(_leftScore >= gameOverScore || _rightScore >= gameOverScore) GameOver();
     }
 
-    void GameOver()
+    private void GameOver()
     {
         gameOverTint.SetActive(true);
         winnerText.enabled = true;
-        restartButton.SetActive(true);
-        homeButton.SetActive(true);
         
         Vector3 rotation = gameOverTint.transform.rotation.eulerAngles;
 
@@ -76,23 +80,19 @@ public class Scoring : MonoBehaviour
         }
         
         gameOverTint.transform.rotation = Quaternion.Euler(rotation);
-
-        Time.timeScale = 0f;
+        
+        _gameStateManager.GameOver();
     }
 
     public void Restart()
     {
         gameOverTint.SetActive(false);
         winnerText.enabled = false;
-        restartButton.SetActive(false);
-        homeButton.SetActive(false);
 
         _leftScore = 0;
         _rightScore = 0;
         scoreText.text = $"{_leftScore}:{_rightScore}";
         
-        Time.timeScale = 1f;
-        
-        _movementScript.BallStarter();
+        StartDaBall?.Invoke(this, EventArgs.Empty);
     }
 }
