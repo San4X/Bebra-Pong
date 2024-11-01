@@ -1521,6 +1521,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
+  ballVelocity: {x: 0, y: 0}
 --- !u!58 &312015943
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -3391,7 +3392,7 @@ MonoBehaviour:
   lobbyCodeInput: {fileID: 1598861746}
   lobbyPrefabListBtn: {fileID: 4491185973719445001, guid: 29b515b9073cb3e4a909945d52572f90, type: 3}
   lobbyListContent: {fileID: 2143649953}
-  playerName: {fileID: 556490681}
+  playerName: {fileID: 1044188357}
 --- !u!4 &670264629
 Transform:
   m_ObjectHideFlags: 0

@@ -9,6 +9,9 @@ TagManager:
   - UpperFrame
   - LowerFrame
   - Ball
+  - LeftOwner
+  - RightOwner
+  - ClientPlayer
   layers:
   - Default
   - TransparentFX
@@ -18,7 +21,7 @@ TagManager:
   - UI
   - Border
   - Player
-  - 
+  - Trigga
   - 
   - 
   - 
