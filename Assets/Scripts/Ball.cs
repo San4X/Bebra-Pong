@@ -15,12 +15,13 @@ public class Ball : NetworkBehaviour
         public Collision2D collision;
     }
     
+    
     [SerializeField] private float speed = 2f;
     
     private Rigidbody2D _rb;
     private Vector2 _inDirection;
 
-    public Vector2 BallVelocity;
+    public Vector2 ballVelocity;
     
 
     private void Awake()
@@ -41,13 +42,12 @@ public class Ball : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        BallVelocity = _rb.velocity;
-        _rb.velocity = BallVelocity.normalized * speed;
+        ballVelocity = _rb.velocity;
+        _rb.velocity = ballVelocity.normalized * speed;
+    
+        if (ballVelocity == new Vector2(0, 0) && transform.position != new Vector3(0, 0, 0)) BallStarter();
         
-        //Debug.Log("Velocity: " + BallVelocity);
-        Debug.DrawRay(_rb.position, BallVelocity, Color.red);
-
-        if (BallVelocity == new Vector2(0, 0) && transform.position != new Vector3(0, 0, 0)) BallStarter();
+        Debug.DrawRay(_rb.position, ballVelocity, Color.red);
     }
     
     void OnCollisionEnter2D(Collision2D collision) //_inDirection initialized at the beginning (BallStarter()) because after ball collides with another object it instantly changes its trajectory and only after Vector2.Reflect compilates so it need unchangeble variable of Vector2.
@@ -68,8 +68,6 @@ public class Ball : NetworkBehaviour
         {
             OnCollidedWithGoal?.Invoke(this, new CollisionEventArgs{collision = collision});
         }
-        
-        //Debug.Log($"Old direction = {_inDirection} to new direction {reflectedVelocityDir}");
     }
     
     void AdjustAngle(float reflectionAngle, Collision2D collision)
@@ -129,9 +127,9 @@ public class Ball : NetworkBehaviour
         if (leftOrRight == 0) x = -9;
         else x = 9;
         
-        Vector2 direction = new Vector2(x, y).normalized;
+        Vector2 directionNormalized = new Vector2(x, y).normalized;
         // direction = _tempVector.normalized;
-        _rb.velocity = direction * speed;
+        _rb.velocity = directionNormalized * speed;
         _inDirection = _rb.velocity;
     }
 }
