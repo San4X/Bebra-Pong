@@ -7,26 +7,18 @@ using UnityEngine.SceneManagement;
 
 public class SpawnManager : NetworkBehaviour
 {
-    public static SpawnManager Instance;
+    public static SpawnManager Instance { get; private set; }
 
     [SerializeField] private Transform playerPrefab, ballPrefab;
     [SerializeField] private GameObject aiPrefab;
-
-    public Transform player1SpawnPoint;
-    public Transform player2SpawnPoint;
+    [SerializeField] private Transform player1SpawnPoint;
+    [SerializeField] private Transform player2SpawnPoint;
     
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
@@ -40,7 +32,6 @@ public class SpawnManager : NetworkBehaviour
 
     private void SceneManager_OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
     {
-        ulong clientische;
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
         {
             bool isServer = clientId == NetworkManager.Singleton.LocalClientId;
@@ -58,7 +49,7 @@ public class SpawnManager : NetworkBehaviour
         ballNetworkObject.Spawn(true);
     }
     
-    void SetupAIScene()
+    private void SetupAIScene()
     {
         Instantiate(playerPrefab, new Vector3(-8f, 0, 0), playerPrefab.transform.rotation);
         Instantiate(aiPrefab, new Vector3(8f, 0, 0), aiPrefab.transform.rotation);

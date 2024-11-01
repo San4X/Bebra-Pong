@@ -2,13 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.Serialization;
 using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
-public class Scoring : MonoBehaviour
+public class Scoring : NetworkBehaviour
 {
     public static Scoring Instance { get; private set; }
     public event EventHandler StartDaBall;
@@ -86,6 +87,7 @@ public class Scoring : MonoBehaviour
 
     public void Restart()
     {
+        if (!IsServer) return;
         gameOverTint.SetActive(false);
         winnerText.enabled = false;
 
