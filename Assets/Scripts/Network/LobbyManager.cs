@@ -35,7 +35,7 @@ namespace Menu.Network
         [SerializeField] private TMP_InputField lobbyCodeInput;
         [SerializeField] private GameObject lobbyPrefabListBtn;
         [SerializeField] private Transform lobbyListContent;
-        [SerializeField] private TextMeshProUGUI playerName;
+        [SerializeField] private TMP_InputField playerName;
         
         private Lobby _joinedLobby;
         private float _heartbeatTimer;
@@ -49,20 +49,33 @@ namespace Menu.Network
         private void Awake()
         {
             Instance = this;
+            
+            InitializeUnityAuthentication();
         }
 
-        private async void Start()
+        private void Start()
         {
-            await UnityServices.InitializeAsync();
-
-            AuthenticationService.Instance.SignedIn += () =>
-            {
-                Debug.Log("Signed in " + AuthenticationService.Instance.PlayerId);
-            };
-
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-
             _isLobbyPrivate = true;
+        }
+
+        private async void InitializeUnityAuthentication()
+        {
+            if (UnityServices.State != ServicesInitializationState.Initialized)
+            {
+                playerName.text = "Player" + Random.Range(1234, 4321);
+                
+                InitializationOptions initializationOptions = new InitializationOptions();
+                initializationOptions.SetProfile(playerName.text);
+                
+                await UnityServices.InitializeAsync(initializationOptions);
+                
+                AuthenticationService.Instance.SignedIn += () =>
+                {
+                    Debug.Log("Signed in " + AuthenticationService.Instance.PlayerId);
+                };
+                
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            }
         }
 
         void Update()

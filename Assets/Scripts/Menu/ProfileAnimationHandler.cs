@@ -30,8 +30,6 @@ namespace Menu
             {
                 CloseProfile();
             });
-
-            inputField.text = "Player" + Random.Range(1234, 4321);
         }
         private void PlayAnimation()
         {
