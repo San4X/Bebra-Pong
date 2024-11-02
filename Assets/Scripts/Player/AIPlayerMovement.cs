@@ -41,19 +41,19 @@ public class AIPaddleMovement : MonoBehaviour
 
     private void Update()
     {
-        if (Ball.Instance == null) return;
-        if (_isRight && _ball.transform.position.x >= aiActivationBorder.transform.position.x && Ball.Instance.ballVelocity.x > 0) // If paddle on the right, further than activation border and moving to right
+        if (BallMovement.Instance == null) return;
+        if (_isRight && _ball.transform.position.x >= aiActivationBorder.transform.position.x && BallMovement.Instance.ballVelocity.x > 0) // If paddle on the right, further than activation border and moving to right
         {
             // Predict the intersection of the _ball with a vertical line passing through the paddle
-            float timeToReachPaddle = (transform.position.x - _ball.transform.position.x) / Ball.Instance.ballVelocity.x;
-            float predictedY = _ball.transform.position.y + Ball.Instance.ballVelocity.y * timeToReachPaddle;
+            float timeToReachPaddle = (transform.position.x - _ball.transform.position.x) / BallMovement.Instance.ballVelocity.x;
+            float predictedY = _ball.transform.position.y + BallMovement.Instance.ballVelocity.y * timeToReachPaddle;
 
             _targetPosition = new Vector3(transform.position.x, predictedY, transform.position.z);
         }
-        else if (!_isRight && _ball.transform.position.x <= aiActivationBorder.transform.position.x && Ball.Instance.ballVelocity.x < 0) // If paddle on the left, further than activation border and moving to left
+        else if (!_isRight && _ball.transform.position.x <= aiActivationBorder.transform.position.x && BallMovement.Instance.ballVelocity.x < 0) // If paddle on the left, further than activation border and moving to left
         {
-            float timeToReachPaddle = (transform.position.x - _ball.transform.position.x) / Ball.Instance.ballVelocity.x;
-            float predictedY = _ball.transform.position.y + Ball.Instance.ballVelocity.y * timeToReachPaddle;
+            float timeToReachPaddle = (transform.position.x - _ball.transform.position.x) / BallMovement.Instance.ballVelocity.x;
+            float predictedY = _ball.transform.position.y + BallMovement.Instance.ballVelocity.y * timeToReachPaddle;
 
             _targetPosition = new Vector3(transform.position.x, predictedY, transform.position.z);
         }
