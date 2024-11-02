@@ -30,14 +30,14 @@ public class Scoring : NetworkBehaviour
 
     private void Start()
     {
-        Ball.Instance.OnCollidedWithGoal += OnBallCollidedWithGoal_Event;
+        BallMovement.Instance.OnCollidedWithGoal += OnBallCollidedWithGoal_Event;
         _gameStateManager = GetComponent<GameStateManager>();
         
         gameOverTint.SetActive(false);
         winnerText.enabled = false;
     }
 
-    private void OnBallCollidedWithGoal_Event(object sender, Ball.CollisionEventArgs e)
+    private void OnBallCollidedWithGoal_Event(object sender, BallMovement.CollisionEventArgs e)
     {
         Score(e.collision);
     }

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class Ball : NetworkBehaviour
+public class BallMovement : NetworkBehaviour
 {
-    public static Ball Instance { get; private set; }
+    public static BallMovement Instance { get; private set; }
 
     public event EventHandler<CollisionEventArgs> OnCollidedWithGoal;
 
@@ -35,15 +35,22 @@ public class Ball : NetworkBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _rb.gravityScale = 0f;
 
-        if(Scoring.Instance != null) Scoring.Instance.StartDaBall += StartDaBall_Event;
-        else BallStarter(); // If it is menu
+        if (IsOwner)
+        {
+            Scoring.Instance.StartDaBall += StartDaBall_Event;
+        }
+        else if(!IsClient)
+        {
+            BallStarter(); // If it is menu
+        }
+        
     }
     
     // Update is called once per frame
-    void Update()
+    private void FixedUpdate()
     {
+        _rb.velocity = _rb.velocity.normalized * speed;
         ballVelocity = _rb.velocity;
-        _rb.velocity = ballVelocity.normalized * speed;
     
         if (ballVelocity == new Vector2(0, 0) && transform.position != new Vector3(0, 0, 0)) BallStarter();
         
@@ -128,7 +135,6 @@ public class Ball : NetworkBehaviour
         else x = 9;
         
         Vector2 directionNormalized = new Vector2(x, y).normalized;
-        // direction = _tempVector.normalized;
         _rb.velocity = directionNormalized * speed;
         _inDirection = _rb.velocity;
     }
