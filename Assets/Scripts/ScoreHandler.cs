@@ -9,10 +9,10 @@ using UnityEngine.Serialization;
 using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
-public class Scoring : NetworkBehaviour
+public class ScoreHandler : NetworkBehaviour
 {
-    public static Scoring Instance { get; private set; }
-    public event EventHandler StartDaBall;
+    public static ScoreHandler Instance { get; private set; }
+    public event EventHandler NeedBallRestart;
     
     [SerializeField] private TextMeshProUGUI scoreText, winnerText;
     [SerializeField] private int gameOverScore;
@@ -20,7 +20,6 @@ public class Scoring : NetworkBehaviour
     
     private int _leftScore, _rightScore;
     private GameStateManager _gameStateManager;
-    private int _leftScoreCount, _rightScoreCount;
 
 
     private void Awake()
@@ -30,42 +29,38 @@ public class Scoring : NetworkBehaviour
 
     private void Start()
     {
-        BallMovement.Instance.OnCollidedWithGoal += OnBallCollidedWithGoal_Event;
+        ScoreTrigger.Instance.OnGoalTrigger += OnGoalTrigger_Event;
+        GameStateManager.Instance.OnGameStarted += OnGameStarted_Event;
         _gameStateManager = GetComponent<GameStateManager>();
         
         gameOverTint.SetActive(false);
         winnerText.enabled = false;
     }
 
-    private void OnBallCollidedWithGoal_Event(object sender, BallMovement.CollisionEventArgs e)
+    private void OnGoalTrigger_Event(object sender, ScoreTrigger.GoalEventArgs e)
     {
-        Score(e.collision);
+        Score(e.Tag);
     }
     
-    private void Score(Collision2D collision)
+    private void OnGameStarted_Event(object sender, EventArgs e)
     {
+        ResetScore();
+    }
+    
+    private void Score(string goalTag)
+    {
+        if (goalTag == "L_Goal") _rightScore++;
+        else _leftScore++;
         
-        if (collision.gameObject.CompareTag("L_Goal"))
-        {
-            _rightScore++; 
-            StartDaBall?.Invoke(this, EventArgs.Empty);
-            //_rightScoreCount++;
-        }
-        else
-        {
-            _leftScore++;
-            StartDaBall?.Invoke(this, EventArgs.Empty);
-            //_leftScoreCount++;
-        }
         scoreText.text = $"{_leftScore}:{_rightScore}";
-        
         if(_leftScore >= gameOverScore || _rightScore >= gameOverScore) GameOver();
+        
+        NeedBallRestart?.Invoke(this, EventArgs.Empty);
     }
 
     private void GameOver()
     {
-        gameOverTint.SetActive(true);
-        winnerText.enabled = true;
+        ShowGameOverUI();
         
         Vector3 rotation = gameOverTint.transform.rotation.eulerAngles;
 
@@ -85,16 +80,26 @@ public class Scoring : NetworkBehaviour
         _gameStateManager.GameOver();
     }
 
-    public void Restart()
+    private void ResetScore()
     {
-        if (!IsServer) return;
-        gameOverTint.SetActive(false);
-        winnerText.enabled = false;
+        HideGameOverUI();
 
         _leftScore = 0;
         _rightScore = 0;
         scoreText.text = $"{_leftScore}:{_rightScore}";
         
-        StartDaBall?.Invoke(this, EventArgs.Empty);
+        NeedBallRestart?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void ShowGameOverUI()
+    {
+        gameOverTint.SetActive(true);
+        winnerText.enabled = true;
+    }
+    
+    private void HideGameOverUI()
+    {
+        gameOverTint.SetActive(false);
+        winnerText.enabled = false;
     }
 }

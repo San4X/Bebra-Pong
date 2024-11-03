@@ -7,14 +7,6 @@ using UnityEngine;
 public class BallMovement : NetworkBehaviour
 {
     public static BallMovement Instance { get; private set; }
-
-    public event EventHandler<CollisionEventArgs> OnCollidedWithGoal;
-
-    public class CollisionEventArgs : EventArgs
-    {
-        public Collision2D collision;
-    }
-    
     
     [SerializeField] private float speed = 2f;
     
@@ -35,13 +27,13 @@ public class BallMovement : NetworkBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _rb.gravityScale = 0f;
 
-        if (IsOwner)
+        if (ScoreHandler.Instance != null)
         {
-            Scoring.Instance.StartDaBall += StartDaBall_Event;
+            ScoreHandler.Instance.NeedBallRestart += NeedBallRestart_Event;
         }
-        else if(!IsClient)
+        else
         {
-            BallStarter(); // If it is menu
+            SetRandomBallVelocity(); // If it is menu
         }
         
     }
@@ -51,8 +43,12 @@ public class BallMovement : NetworkBehaviour
     {
         _rb.velocity = _rb.velocity.normalized * speed;
         ballVelocity = _rb.velocity;
-    
-        if (ballVelocity == new Vector2(0, 0) && transform.position != new Vector3(0, 0, 0)) BallStarter();
+
+        if (ballVelocity == new Vector2(0, 0) && transform.position != new Vector3(0, 0, 0))
+        {
+            ResetBall();
+            SetRandomBallVelocity();
+        }
         
         Debug.DrawRay(_rb.position, ballVelocity, Color.red);
     }
@@ -70,10 +66,6 @@ public class BallMovement : NetworkBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             AdjustAngle(reflectionAngle, collision);
-        }
-        else if (collision.gameObject.CompareTag("L_Goal") || collision.gameObject.CompareTag("R_Goal"))
-        {
-            OnCollidedWithGoal?.Invoke(this, new CollisionEventArgs{collision = collision});
         }
     }
     
@@ -119,14 +111,19 @@ public class BallMovement : NetworkBehaviour
     // конвертуємо її в число від 0 до 1 де 0 це сторона з якої прилітає м'яч
     // чим більше число тим менший кут відбиття і навпаки
 
-    private void StartDaBall_Event(object sender, EventArgs e) {
-        BallStarter();
+    private void NeedBallRestart_Event(object sender, EventArgs e)
+    {
+        if (IsOwner)
+        {
+            ResetBall();
+            SetRandomBallVelocity();
+        }
+        else ResetBall();
+        
     }
     
-    private void BallStarter()
+    private void SetRandomBallVelocity()
     {
-        transform.position = new Vector3(0, 0, transform.position.z);
-        
         int x;
         int y = UnityEngine.Random.Range(-5, 5);
         int leftOrRight = UnityEngine.Random.Range(0,2);
@@ -137,6 +134,11 @@ public class BallMovement : NetworkBehaviour
         Vector2 directionNormalized = new Vector2(x, y).normalized;
         _rb.velocity = directionNormalized * speed;
         _inDirection = _rb.velocity;
+    }
+
+    private void ResetBall()
+    {
+        transform.position = new Vector3(0, 0, 0);
     }
 }
 

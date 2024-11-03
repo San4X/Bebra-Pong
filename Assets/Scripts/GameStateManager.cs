@@ -13,10 +13,9 @@ public class GameStateManager : NetworkBehaviour
     
     [SerializeField] private GameObject pressAnyBtnUI, waitingForPlayersUI, restartButton, homeButton;
 
-    private NetworkVariable<float> _countdownToStartTimer = new NetworkVariable<float>(3f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    private readonly NetworkVariable<float> _countdownToStartTimer = new (3f, writePerm: NetworkVariableWritePermission.Owner);
     private bool _anyKeyPressed, _isCountdownStarted;
     private Dictionary<ulong, bool> _playerReadyDictionary;
-    private Scoring _scoringScript;
 
 
     private void Awake()
@@ -29,12 +28,11 @@ public class GameStateManager : NetworkBehaviour
     private void Start()
     {
         Pause();
+        
         waitingForPlayersUI.SetActive(false);
-        restartButton.SetActive(false);
-        homeButton.SetActive(false);
+        HideGameOverBtns();
+        
         _anyKeyPressed = false;
-
-        _scoringScript = GetComponent<Scoring>();
     }
     
     // Update is called once per frame
@@ -60,9 +58,9 @@ public class GameStateManager : NetworkBehaviour
             
             SetPlayerReadyServerRpc();
         }
-        else
+        else // If Singleplayer
         {
-            StartCountdown();
+            StartCountdownSingleplayer();
         }
     }
     
@@ -87,7 +85,7 @@ public class GameStateManager : NetworkBehaviour
         }
     }
 
-    private void StartCountdown() // Start countdown (Singleplayer)
+    private void StartCountdownSingleplayer() // Start countdown (Singleplayer)
     {
         _isCountdownStarted = true;
         OnCountdownStarted?.Invoke(this, EventArgs.Empty);
@@ -104,25 +102,19 @@ public class GameStateManager : NetworkBehaviour
         Resume();
     }
 
+    private void StartGameSingleplayer() // Start game after countdown (Singleplayer)
+    {
+        OnGameStarted?.Invoke(this, EventArgs.Empty);
+        
+        HideGameOverBtns();
+    }
+    
     [ClientRpc]
     private void StartGameClientRpc() // Start game after countdown for all clients (Multiplayer)
     {
         OnGameStarted?.Invoke(this, EventArgs.Empty);
         
-        restartButton.SetActive(false);
-        homeButton.SetActive(false);
-        
-        _scoringScript.Restart();
-    }
-    
-    private void StartGameSingleplayer() // Start game after countdown (Singleplayer)
-    {
-        OnGameStarted?.Invoke(this, EventArgs.Empty);
-        
-        restartButton.SetActive(false);
-        homeButton.SetActive(false);
-        
-        _scoringScript.Restart();
+        HideGameOverBtns();
     }
 
     private void CountdownToStartTimer()
@@ -145,21 +137,31 @@ public class GameStateManager : NetworkBehaviour
         return _countdownToStartTimer.Value;
     }
     
-    private void Pause()
+    private static void Pause()
     {
         Time.timeScale = 0f;
     }
 
-    private void Resume()
+    private static void Resume()
     {
         Time.timeScale = 1f;
     }
     
     public void GameOver()
     {
+        Pause();
+        ShowGameOverBtns();
+    }
+
+    private void ShowGameOverBtns()
+    {
         restartButton.SetActive(true);
         homeButton.SetActive(true);
-        
-        Pause();
+    }
+    
+    private void HideGameOverBtns()
+    {
+        restartButton.SetActive(false);
+        homeButton.SetActive(false);
     }
 }
