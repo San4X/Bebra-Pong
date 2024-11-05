@@ -30,6 +30,8 @@ public class BallMovement : NetworkBehaviour
         if (ScoreHandler.Instance != null)
         {
             ScoreHandler.Instance.NeedBallRestart += NeedBallRestart_Event;
+            ScoreHandler.Instance.NeedBallReset += NeedBallReset_Event;
+            GameStateManager.Instance.OnGameStarted += NeedBallRestart_Event;
         }
         else
         {
@@ -44,13 +46,13 @@ public class BallMovement : NetworkBehaviour
         _rb.velocity = _rb.velocity.normalized * speed;
         ballVelocity = _rb.velocity;
 
-        if (ballVelocity == new Vector2(0, 0) && transform.position != new Vector3(0, 0, 0))
+        if (IsOwner && _rb.velocity == new Vector2(0, 0) && transform.position != new Vector3(0, 0, 0))
         {
             ResetBall();
             SetRandomBallVelocity();
         }
         
-        Debug.DrawRay(_rb.position, ballVelocity, Color.red);
+        Debug.DrawRay(_rb.position, _rb.velocity, Color.red);
     }
     
     void OnCollisionEnter2D(Collision2D collision) //_inDirection initialized at the beginning (BallStarter()) because after ball collides with another object it instantly changes its trajectory and only after Vector2.Reflect compilates so it need unchangeble variable of Vector2.
@@ -119,7 +121,11 @@ public class BallMovement : NetworkBehaviour
             SetRandomBallVelocity();
         }
         else ResetBall();
-        
+    }
+    
+    private void NeedBallReset_Event(object sender, EventArgs e)
+    {
+        ResetBall();
     }
     
     private void SetRandomBallVelocity()
@@ -138,7 +144,9 @@ public class BallMovement : NetworkBehaviour
 
     private void ResetBall()
     {
+        _rb.velocity = new Vector2(0, 0);
         transform.position = new Vector3(0, 0, 0);
+        _inDirection = new Vector2(0, 0);
     }
 }
 

@@ -4,14 +4,11 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - L_Goal
-  - R_Goal
   - UpperFrame
   - LowerFrame
   - Ball
-  - LeftOwner
-  - RightOwner
-  - ClientPlayer
+  - L_Goal
+  - R_Goal
   layers:
   - Default
   - TransparentFX

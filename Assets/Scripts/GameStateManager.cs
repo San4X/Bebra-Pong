@@ -1,17 +1,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameStateManager : NetworkBehaviour
 {
     public static GameStateManager Instance { get; private set; }
 
     public event EventHandler OnGameStarted;
-    public event EventHandler OnCountdownStarted; 
-    
-    [SerializeField] private GameObject pressAnyBtnUI, waitingForPlayersUI, restartButton, homeButton;
+    public event EventHandler OnCountdownStarted;
+
+    [SerializeField] private GameObject pressAnyBtnUI, waitingForPlayersUI;
+    [SerializeField] private Button restartButton, homeButton;
+    [SerializeField] private TextMeshProUGUI readyForNextRoundLeftText, readyForNextRoundRightText;
 
     private readonly NetworkVariable<float> _countdownToStartTimer = new (3f, writePerm: NetworkVariableWritePermission.Owner);
     private bool _anyKeyPressed, _isCountdownStarted;
@@ -22,17 +26,22 @@ public class GameStateManager : NetworkBehaviour
     {
         Instance = this;
         _playerReadyDictionary = new Dictionary<ulong, bool>();
+        _anyKeyPressed = false;
     }
 
     // Start is called before the first frame update
     private void Start()
     {
-        Pause();
-        
         waitingForPlayersUI.SetActive(false);
-        HideGameOverBtns();
+        HideGameOverUI();
         
-        _anyKeyPressed = false;
+        Pause();
+
+        restartButton.onClick.AddListener(() =>
+        {
+            SetReadyTextServerRpc();
+            SetPlayerReadyServerRpc();
+        });
     }
     
     // Update is called once per frame
@@ -72,49 +81,72 @@ public class GameStateManager : NetworkBehaviour
         bool allClientReady = true;
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            if (!_playerReadyDictionary.ContainsKey(clientId) || !_playerReadyDictionary[clientId])
-            {
-                allClientReady = false;
-                break;
-            }
+            if (_playerReadyDictionary.ContainsKey(clientId) && _playerReadyDictionary[clientId]) continue;
+            allClientReady = false;
+            break;
         }
 
-        if (allClientReady)
+        if (!allClientReady) return;
+        StartCountdownClientRpc();
+        SetPlayersUnready();
+    }
+
+    private void SetPlayersUnready()
+    {
+        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            StartCountdownClientRpc();
+            if (_playerReadyDictionary.ContainsKey(clientId))
+            {
+                _playerReadyDictionary[clientId] = false;
+            }
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetReadyTextServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        SetReadyTextClientRpc(serverRpcParams.Receive.SenderClientId);
+    }
+
+    [ClientRpc]
+    private void SetReadyTextClientRpc(ulong clientId)
+    {
+        
+        if (clientId == 0) readyForNextRoundLeftText.gameObject.SetActive(true);
+        else readyForNextRoundRightText.gameObject.SetActive(true);
     }
 
     private void StartCountdownSingleplayer() // Start countdown (Singleplayer)
     {
-        _isCountdownStarted = true;
         OnCountdownStarted?.Invoke(this, EventArgs.Empty);
+        
         Resume();
+        HideGameOverUI();
+        
+        _isCountdownStarted = true;
     }
     
     [ClientRpc]
     private void StartCountdownClientRpc() // Start countdown for all clients (Multiplayer)
     {
+        OnCountdownStarted?.Invoke(this, EventArgs.Empty);
+        
+        Resume();
         waitingForPlayersUI.SetActive(false);
+        HideGameOverUI();
         
         _isCountdownStarted = true;
-        OnCountdownStarted?.Invoke(this, EventArgs.Empty);
-        Resume();
     }
 
     private void StartGameSingleplayer() // Start game after countdown (Singleplayer)
     {
         OnGameStarted?.Invoke(this, EventArgs.Empty);
-        
-        HideGameOverBtns();
     }
     
     [ClientRpc]
     private void StartGameClientRpc() // Start game after countdown for all clients (Multiplayer)
     {
         OnGameStarted?.Invoke(this, EventArgs.Empty);
-        
-        HideGameOverBtns();
     }
 
     private void CountdownToStartTimer()
@@ -123,6 +155,7 @@ public class GameStateManager : NetworkBehaviour
         if (_countdownToStartTimer.Value <= 0)
         {
             _isCountdownStarted = false;
+            _countdownToStartTimer.Value = 3f;
             
             if (NetworkManager.Singleton.IsClient)
             {
@@ -150,18 +183,21 @@ public class GameStateManager : NetworkBehaviour
     public void GameOver()
     {
         Pause();
-        ShowGameOverBtns();
+        ShowGameOverUI();
     }
 
-    private void ShowGameOverBtns()
+    private void ShowGameOverUI()
     {
-        restartButton.SetActive(true);
-        homeButton.SetActive(true);
+        restartButton.gameObject.SetActive(true);
+        homeButton.gameObject.SetActive(true);
     }
     
-    private void HideGameOverBtns()
+    private void HideGameOverUI()
     {
-        restartButton.SetActive(false);
-        homeButton.SetActive(false);
+        restartButton.gameObject.SetActive(false);
+        homeButton.gameObject.SetActive(false);
+        readyForNextRoundLeftText.gameObject.SetActive(false);
+        readyForNextRoundRightText.gameObject.SetActive(false);
+        
     }
 }

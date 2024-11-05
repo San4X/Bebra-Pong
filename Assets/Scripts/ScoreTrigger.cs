@@ -8,25 +8,21 @@ public class ScoreTrigger : MonoBehaviour
     public static ScoreTrigger Instance { get; private set; }
     
     public event EventHandler<GoalEventArgs> OnGoalTrigger;
+    
     public class GoalEventArgs : EventArgs
     {
-        public string Tag;
+        public string Side;
     }
-
-    private string _tag;
+    
 
     private void Awake()
     {
         Instance = this;
     }
 
-    private void Start()
-    {
-        _tag = gameObject.tag;
-    }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        OnGoalTrigger?.Invoke(this, new GoalEventArgs{Tag = _tag});
+        if(collision.gameObject.transform.position.x < 0) OnGoalTrigger?.Invoke(this, new GoalEventArgs{Side = "Left"});
+        else OnGoalTrigger?.Invoke(this, new GoalEventArgs{Side = "Right"});
     }
 }

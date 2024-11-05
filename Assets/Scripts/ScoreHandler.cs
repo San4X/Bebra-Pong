@@ -1,21 +1,16 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Scripting;
-using UnityEngine.Serialization;
-using UnityEngine.SocialPlatforms.Impl;
-using UnityEngine.UI;
 
 public class ScoreHandler : NetworkBehaviour
 {
     public static ScoreHandler Instance { get; private set; }
     public event EventHandler NeedBallRestart;
+    public event EventHandler NeedBallReset;
     
     [SerializeField] private TextMeshProUGUI scoreText, winnerText;
-    [SerializeField] private int gameOverScore;
+    [SerializeField] private int scoreLimit;
     [SerializeField] private GameObject gameOverTint;
     
     private int _leftScore, _rightScore;
@@ -30,7 +25,7 @@ public class ScoreHandler : NetworkBehaviour
     private void Start()
     {
         ScoreTrigger.Instance.OnGoalTrigger += OnGoalTrigger_Event;
-        GameStateManager.Instance.OnGameStarted += OnGameStarted_Event;
+        GameStateManager.Instance.OnCountdownStarted += OnCountdownStarted_Event;
         _gameStateManager = GetComponent<GameStateManager>();
         
         gameOverTint.SetActive(false);
@@ -39,21 +34,23 @@ public class ScoreHandler : NetworkBehaviour
 
     private void OnGoalTrigger_Event(object sender, ScoreTrigger.GoalEventArgs e)
     {
-        Score(e.Tag);
+        Score(e.Side);
     }
     
-    private void OnGameStarted_Event(object sender, EventArgs e)
+    private void OnCountdownStarted_Event(object sender, EventArgs e)
     {
+        NeedBallReset?.Invoke(this, EventArgs.Empty);
+        HideGameOverUI();
         ResetScore();
     }
     
-    private void Score(string goalTag)
+    private void Score(string goalSide)
     {
-        if (goalTag == "L_Goal") _rightScore++;
+        if (goalSide == "Left") _rightScore++;
         else _leftScore++;
         
         scoreText.text = $"{_leftScore}:{_rightScore}";
-        if(_leftScore >= gameOverScore || _rightScore >= gameOverScore) GameOver();
+        if(_leftScore >= scoreLimit || _rightScore >= scoreLimit) GameOver();
         
         NeedBallRestart?.Invoke(this, EventArgs.Empty);
     }
@@ -87,8 +84,6 @@ public class ScoreHandler : NetworkBehaviour
         _leftScore = 0;
         _rightScore = 0;
         scoreText.text = $"{_leftScore}:{_rightScore}";
-        
-        NeedBallRestart?.Invoke(this, EventArgs.Empty);
     }
 
     private void ShowGameOverUI()
