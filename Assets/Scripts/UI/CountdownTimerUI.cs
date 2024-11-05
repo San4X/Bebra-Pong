@@ -33,7 +33,6 @@ public class CountdownTimerUI : MonoBehaviour
     private void OnCountdownStarted_Event(object sender, EventArgs e)
     {
         Show();
-        Debug.Log("Countdown started!");
     }
 
     private void Show()
