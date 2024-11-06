@@ -53,6 +53,12 @@ public class BallMovement : NetworkBehaviour
             ResetBall();
             SetRandomBallVelocity();
         }
+
+        if (!IsClient && _rb.velocity == new Vector2(0, 0) && transform.position != new Vector3(0, 0, 0))
+        {
+            ResetBall();
+            SetRandomBallVelocity();
+        }
         
         Debug.DrawRay(_rb.position, _rb.velocity, Color.red);
     }
