@@ -7,6 +7,8 @@ using UnityEngine;
 public class BallMovement : NetworkBehaviour
 {
     public static BallMovement Instance { get; private set; }
+
+    public event EventHandler<EventArgs> OnBallStarted;
     
     [SerializeField] private float speed = 2f;
     
@@ -140,6 +142,8 @@ public class BallMovement : NetworkBehaviour
         Vector2 directionNormalized = new Vector2(x, y).normalized;
         _rb.velocity = directionNormalized * speed;
         _inDirection = _rb.velocity;
+        
+        OnBallStarted?.Invoke(this, EventArgs.Empty);
     }
 
     private void ResetBall()

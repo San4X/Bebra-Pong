@@ -1,10 +1,9 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
 
 namespace Network.Movement
 {
-    public class BallNetwork : NetworkBehaviour
+    public class Vector2Sync : NetworkBehaviour
     {
         private readonly NetworkVariable<Vector2> _netState = new(writePerm: NetworkVariableWritePermission.Owner);
         private Rigidbody2D _rb;

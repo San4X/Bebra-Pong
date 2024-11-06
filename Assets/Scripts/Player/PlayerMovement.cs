@@ -9,13 +9,13 @@ public class PlayerMovement : NetworkBehaviour
 {
     public static PlayerMovement Instance { get; private set; }
     
-    [SerializeField] private float speed = 5f;
-    
-    private NetworkVariable<float> _clientVerticalInput = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    [SerializeField] private float speed = 2f;
     
     private GameObject _upperFrame, _lowerFrame;
     private float _upperBorder, _lowerBorder;
     private float _verticalInput;
+    private Rigidbody2D _rb;
+    private Vector2 _moveDirection;
 
     private void Awake()
     {
@@ -25,6 +25,8 @@ public class PlayerMovement : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _rb = GetComponent<Rigidbody2D>();
+        
         _upperFrame = GameObject.FindWithTag("UpperFrame");
         _lowerFrame = GameObject.FindWithTag("LowerFrame");
         
@@ -34,8 +36,20 @@ public class PlayerMovement : NetworkBehaviour
     
     private void Update()
     {
+        transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, _lowerBorder, _upperBorder), 0);
         if(!IsOwner) return;
-        _verticalInput = Input.GetAxis("Vertical");
+        if (!Input.anyKeyDown)
+        {
+            _moveDirection = Vector2.zero;
+        }
+        if (Input.GetKey(KeyCode.W))
+        {
+            _moveDirection = Vector2.up;
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            _moveDirection = Vector2.down;
+        }
     }
 
     private void FixedUpdate()
@@ -46,8 +60,6 @@ public class PlayerMovement : NetworkBehaviour
 
     private void HandlePlayerMovement()
     {
-        
-        transform.position += new Vector3(0, _verticalInput * speed * Time.deltaTime, 0);
-        transform.position = new Vector3(transform.position.x, Mathf.Clamp(transform.position.y, _lowerBorder, _upperBorder), 0);
+        _rb.velocity = _moveDirection * speed;
     }
 }

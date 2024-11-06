@@ -5,7 +5,7 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace Network.Movement
 {
-    public class PlayerNetwork : NetworkBehaviour
+    public class TransformSync : NetworkBehaviour
     {
         [SerializeField] private float interpolationTime = 0.1f;
          

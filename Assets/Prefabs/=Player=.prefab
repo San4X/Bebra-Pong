@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7911282638713147582}
   - component: {fileID: 7616139048104335039}
   - component: {fileID: 280283079648788635}
-  - component: {fileID: 4402871037684055643}
+  - component: {fileID: -557194299041993126}
   m_Layer: 0
   m_Name: =Player=
   m_TagString: Player
@@ -123,7 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 381846d37299e044489a1ce7050fe3b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 8
+  speed: 6
 --- !u!114 &7911282638713147582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,7 +151,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -162,7 +162,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 5
 --- !u!61 &280283079648788635
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -208,7 +208,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &4402871037684055643
+--- !u!114 &-557194299041993126
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -217,7 +217,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2559349187728946084}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d59bc10b904fb5c47af3b0f2e976b19e, type: 3}
+  m_Script: {fileID: 11500000, guid: 676b231c8c93750418764975b942daa6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interpolationTime: 0.1

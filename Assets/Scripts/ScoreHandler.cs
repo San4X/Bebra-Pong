@@ -34,7 +34,8 @@ public class ScoreHandler : NetworkBehaviour
 
     private void OnGoalTrigger_Event(object sender, ScoreTrigger.GoalEventArgs e)
     {
-        Score(e.Side);
+        if (!IsClient) Score(e.Side);
+        else ScoreServerRpc(e.Side);
     }
     
     private void OnCountdownStarted_Event(object sender, EventArgs e)
@@ -55,6 +56,18 @@ public class ScoreHandler : NetworkBehaviour
         NeedBallRestart?.Invoke(this, EventArgs.Empty);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void ScoreServerRpc(string goalSide)
+    {
+        ScoreClientRpc(goalSide);
+    }
+
+    [ClientRpc]
+    private void ScoreClientRpc(string goalSide)
+    {
+        Score(goalSide);
+    }
+    
     private void GameOver()
     {
         ShowGameOverUI();
