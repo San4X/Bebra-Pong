@@ -30,7 +30,6 @@ public class LobbyReady : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void SetPlayerReadyServerRpc(ServerRpcParams serverRpcParams = default)
     {
-        Debug.Log("Player " + serverRpcParams.Receive.SenderClientId + " is ready!");
         _playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = true;
         
         bool allClientReady = true;
